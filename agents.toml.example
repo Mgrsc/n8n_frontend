@@ -1,0 +1,32 @@
+# n8n-Frontend Agents Configuration Example
+# Copy this file to agents.toml and configure your agents
+
+# Application Settings
+app_title = "AI Chat"
+
+# Log Level Configuration
+# Options: debug, info, error
+# Default: info
+log_level = "info"
+
+# Agent Configuration
+# Add as many agents as you need
+[[agents]]
+name = "AI Assistant"
+webhook_url = "https://your-n8n-instance.com/webhook/your-webhook-id/chat"
+auth_user = "admin"
+auth_password = "${AGENT_1_PASSWORD}"
+
+# Example: Second Agent
+# [[agents]]
+# name = "Code Helper"
+# webhook_url = "https://your-n8n-instance.com/webhook/another-webhook-id/chat"
+# auth_user = "admin"
+# auth_password = "${AGENT_2_PASSWORD}"
+
+# Topic LLM Configuration (Optional - for auto-generating chat names)
+[topic_llm]
+enabled = true
+base_url = "https://api.openai.com/v1"
+api_key = "${TOPIC_LLM_API_KEY}"
+model = "gpt-5-mini"

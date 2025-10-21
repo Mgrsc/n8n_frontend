@@ -1,0 +1,25 @@
+services:
+  n8n-frontend:
+    image: ghcr.io/mgrsc/n8n-frontend:latest
+    container_name: n8n-frontend
+    ports:
+      - "5173:80"
+    volumes:
+      # Mount configuration files (read-only for security)
+      - ./agents.toml:/usr/share/nginx/html/agents.toml:ro
+      - ./public/favicon.svg:/usr/share/nginx/html/favicon.svg:ro
+    environment:
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - n8n-network
+
+networks:
+  n8n-network:
+    driver: bridge

@@ -1,0 +1,170 @@
+import { useState, useEffect } from 'react'
+import { validateUser, saveAuth, getAuth, clearAuth } from './utils/auth'
+import { getChats, createChat, deleteChat } from './utils/storage'
+import { loadConfig } from './utils/config'
+import { logger } from './utils/logger'
+import { Chat, Agent } from './types'
+import Login from './components/Login'
+import ChatHistory from './components/ChatHistory'
+import ChatInterface from './components/ChatInterface'
+import AgentSelector from './components/AgentSelector'
+
+export default function App() {
+  const [authenticated, setAuthenticated] = useState(false)
+  const [username, setUsername] = useState('')
+  const [chats, setChats] = useState<Chat[]>([])
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null)
+  const [agents, setAgents] = useState<Agent[]>([])
+  const [currentAgentId, setCurrentAgentId] = useState<string>('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [appTitle, setAppTitle] = useState('AI Chat')
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const config = await loadConfig()
+        
+        if (!config.agents || config.agents.length === 0) {
+          setError('未找到可用的 AI 助手配置，请检查 agents.toml 文件')
+          setLoading(false)
+          return
+        }
+        
+        setAgents(config.agents)
+        setCurrentAgentId(config.agents[0].id)
+        setAppTitle(config.app_title || 'AI Chat')
+
+        const auth = getAuth()
+        if (auth && validateUser(auth.username, auth.password)) {
+          setUsername(auth.username)
+          setAuthenticated(true)
+          loadChats()
+        }
+      } catch (err) {
+        logger.error('应用初始化失败', err)
+        setError('应用初始化失败，请刷新页面重试')
+      } finally {
+        setLoading(false)
+      }
+    }
+    init()
+  }, [])
+
+  const loadChats = () => {
+    setChats(getChats())
+  }
+
+  const handleLogin = (user: string, pass: string) => {
+    if (validateUser(user, pass)) {
+      saveAuth(user, pass)
+      setUsername(user)
+      setAuthenticated(true)
+      loadChats()
+    } else {
+      alert('Invalid username or password')
+    }
+  }
+
+  const handleLogout = () => {
+    clearAuth()
+    setAuthenticated(false)
+    setUsername('')
+    setChats([])
+    setCurrentChatId(null)
+  }
+
+  const handleNewChat = () => {
+    if (!currentAgentId) {
+      alert('请先选择一个 AI 助手')
+      return
+    }
+    const newChat = createChat(currentAgentId)
+    loadChats()
+    setCurrentChatId(newChat.id)
+  }
+
+  const handleSelectAgent = (agentId: string) => {
+    setCurrentAgentId(agentId)
+    setCurrentChatId(null)
+  }
+
+  const handleDeleteChat = (chatId: string) => {
+    deleteChat(chatId)
+    loadChats()
+    if (currentChatId === chatId) {
+      setCurrentChatId(null)
+    }
+  }
+
+  const handleClearAll = () => {
+    // 删除所有对话
+    chats.forEach(chat => deleteChat(chat.id))
+    loadChats()
+    setCurrentChatId(null)
+  }
+
+  const handleChatUpdate = () => {
+    loadChats()
+  }
+
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner"></div>
+        <p>加载中...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="error-screen">
+        <h2>⚠️ 加载失败</h2>
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()}>刷新页面</button>
+      </div>
+    )
+  }
+
+  if (!authenticated) {
+    return <Login onLogin={handleLogin} appTitle={appTitle} />
+  }
+
+  const currentChat = chats.find(c => c.id === currentChatId) || null
+  // 显示所有对话，不按智能体过滤
+  const allChats = chats
+
+  return (
+    <div className="app">
+      <div className="app-header">
+        <h1>{appTitle}</h1>
+        <AgentSelector 
+          agents={agents}
+          currentAgentId={currentAgentId}
+          onSelectAgent={handleSelectAgent}
+        />
+        <div className="user-info">
+          <span>{username}</span>
+          <button onClick={handleLogout}>Logout</button>
+        </div>
+      </div>
+      <div className="app-content">
+        <ChatHistory
+          chats={allChats}
+          currentChatId={currentChatId}
+          onSelectChat={setCurrentChatId}
+          onNewChat={handleNewChat}
+          onDeleteChat={handleDeleteChat}
+          onClearAll={handleClearAll}
+        />
+        <ChatInterface
+          chat={currentChat}
+          onChatUpdate={handleChatUpdate}
+        />
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>AI Chat</title>
+    <script>
+      (function() {
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        const filterPatterns = [
+          /content_script\.js/i,
+          /chrome-extension:/i,
+          /fetchError.*Failed to fetch/i,
+          /Failed to fetch/i,
+          /Extension context invalidated/i
+        ];
+        
+        const shouldFilter = (args) => {
+          const message = args.map(arg => {
+            if (typeof arg === 'string') return arg;
+            if (arg?.message) return arg.message;
+            if (arg?.stack) return arg.stack;
+            return String(arg);
+          }).join(' ');
+          return filterPatterns.some(p => p.test(message));
+        };
+        
+        console.error = function(...args) {
+          if (!shouldFilter(args)) {
+            originalError.apply(console, args);
+          }
+        };
+        
+        console.warn = function(...args) {
+          if (!shouldFilter(args)) {
+            originalWarn.apply(console, args);
+          }
+        };
+        
+        window.addEventListener('unhandledrejection', function(e) {
+          if (e.reason) {
+            const message = e.reason.message || e.reason.toString();
+            if (filterPatterns.some(p => p.test(message))) {
+              e.preventDefault();
+            }
+          }
+        });
+        
+        window.addEventListener('error', function(e) {
+          if (e.filename && filterPatterns.some(p => p.test(e.filename))) {
+            e.preventDefault();
+          }
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
