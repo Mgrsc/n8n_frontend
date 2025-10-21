@@ -1,12 +1,17 @@
 import { parse } from 'smol-toml'
-import { Config, Agent, TopicLLM, LogLevel } from '../types'
+import { Config, Agent, TopicLLM, LogLevel, User } from '../types'
 import { setLogLevel, logger } from './logger'
 
 let cachedConfig: Config | null = null
 
 const resolveEnvVars = (value: string): string => {
   return value.replace(/\$\{([^}]+)\}/g, (_, varName) => {
-    const envValue = import.meta.env[`VITE_${varName}`]
+    // 优先尝试直接匹配（支持写完整的 VITE_ 前缀）
+    let envValue = import.meta.env[varName]
+    // 如果找不到且不是以 VITE_ 开头，自动添加 VITE_ 前缀再尝试
+    if (!envValue && !varName.startsWith('VITE_')) {
+      envValue = import.meta.env[`VITE_${varName}`]
+    }
     return envValue || ''
   })
 }
@@ -30,6 +35,21 @@ const processTopicLLM = (topicLLM: any): TopicLLM => {
   }
 }
 
+const processUsers = (users: any): User[] => {
+  if (Array.isArray(users)) {
+    return users.map((user: any) => ({
+      username: user.username || '',
+      password: resolveEnvVars(user.password || '')
+    }))
+  }
+  // Fallback to env variable for backward compatibility
+  const usersStr = import.meta.env.VITE_USERS || 'admin:admin'
+  return usersStr.split(',').map((pair: string) => {
+    const [username, password] = pair.split(':')
+    return { username: username.trim(), password: password.trim() }
+  })
+}
+
 export const loadConfig = async (): Promise<Config> => {
   if (cachedConfig) return cachedConfig
 
@@ -47,15 +67,16 @@ export const loadConfig = async (): Promise<Config> => {
     )
 
     const topic_llm = processTopicLLM(parsed.topic_llm)
+    const users = processUsers(parsed.users)
     const app_title = typeof parsed.app_title === 'string' ? parsed.app_title : 'AI Chat'
     const log_level = (parsed.log_level === 'debug' || parsed.log_level === 'info' || parsed.log_level === 'error') 
       ? parsed.log_level as LogLevel 
       : 'info'
 
     setLogLevel(log_level)
-    logger.info('配置加载成功', { agents: agents.length, log_level })
+    logger.info('配置加载成功', { agents: agents.length, users: users.length, log_level })
 
-    cachedConfig = { agents, topic_llm, app_title, log_level }
+    cachedConfig = { agents, topic_llm, app_title, log_level, users }
     return cachedConfig
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)

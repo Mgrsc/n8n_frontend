@@ -9,6 +9,18 @@ app_title = "AI Chat"
 # Default: info
 log_level = "info"
 
+# Frontend Users (Login credentials)
+# Add as many users as you need
+# Variable names must match those in .env (with or without VITE_ prefix)
+[[users]]
+username = "admin"
+password = "${VITE_USERS_ADMIN_PASSWORD}"
+
+# Example: Second User
+# [[users]]
+# username = "user2"
+# password = "${VITE_USERS_USER2_PASSWORD}"
+
 # Agent Configuration
 # Add as many agents as you need
 [[agents]]

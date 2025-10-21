@@ -43,4 +43,5 @@ export interface Config {
   topic_llm: TopicLLM
   app_title?: string
   log_level?: LogLevel
+  users?: User[]
 }

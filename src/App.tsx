@@ -38,7 +38,7 @@ export default function App() {
         setAppTitle(config.app_title || 'AI Chat')
 
         const auth = getAuth()
-        if (auth && validateUser(auth.username, auth.password)) {
+        if (auth && await validateUser(auth.username, auth.password)) {
           setUsername(auth.username)
           setAuthenticated(true)
           loadChats()
@@ -58,8 +58,8 @@ export default function App() {
     setChats(getChats())
   }
 
-  const handleLogin = (user: string, pass: string) => {
-    if (validateUser(user, pass)) {
+  const handleLogin = async (user: string, pass: string) => {
+    if (await validateUser(user, pass)) {
       saveAuth(user, pass)
       setUsername(user)
       setAuthenticated(true)

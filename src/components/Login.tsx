@@ -1,7 +1,7 @@
 import { useState, FormEvent } from 'react'
 
 interface LoginProps {
-  onLogin: (username: string, password: string) => void
+  onLogin: (username: string, password: string) => Promise<void>
   appTitle?: string
 }
 

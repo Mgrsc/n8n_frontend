@@ -1,15 +1,23 @@
 import { User } from '../types'
+import { loadConfig } from './config'
 
-export const parseUsers = (): User[] => {
-  const usersStr = import.meta.env.VITE_USERS || 'admin:admin'
-  return usersStr.split(',').map((pair: string) => {
-    const [username, password] = pair.split(':')
-    return { username: username.trim(), password: password.trim() }
-  })
+let cachedUsers: User[] | null = null
+
+export const parseUsers = async (): Promise<User[]> => {
+  if (cachedUsers) return cachedUsers
+  
+  try {
+    const config = await loadConfig()
+    cachedUsers = config.users || []
+    return cachedUsers
+  } catch (error) {
+    // Fallback to default user if config fails to load
+    return [{ username: 'admin', password: 'admin' }]
+  }
 }
 
-export const validateUser = (username: string, password: string): boolean => {
-  const users = parseUsers()
+export const validateUser = async (username: string, password: string): Promise<boolean> => {
+  const users = await parseUsers()
   return users.some(u => u.username === username && u.password === password)
 }
 

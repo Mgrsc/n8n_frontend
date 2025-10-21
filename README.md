@@ -130,6 +130,9 @@ model = "gpt-5-mini"
 存储敏感信息，不应提交到版本控制：
 
 ```bash
+# 前端用户认证密码
+VITE_USERS_ADMIN_PASSWORD=your_admin_password
+
 # 智能体认证密码
 VITE_AGENT_1_PASSWORD=your_secure_password_here
 VITE_AGENT_2_PASSWORD=another_password
@@ -140,8 +143,30 @@ VITE_TOPIC_LLM_API_KEY=sk-your-openai-key
 
 ### 用户认证
 
-默认用户凭证（可在 `src/utils/auth.ts` 中修改）：
+在 `agents.toml` 中配置登录用户：
 
+```toml
+# 前端登录用户（支持多用户）
+# 变量名需要与 .env 中的名称一致
+[[users]]
+username = "admin"
+password = "${VITE_USERS_ADMIN_PASSWORD}"
+
+# 添加更多用户
+[[users]]
+username = "user2"
+password = "${VITE_USERS_USER2_PASSWORD}"
+```
+
+对应的 `.env` 文件：
+
+```bash
+# 必须以 VITE_ 开头（Vite 安全限制）
+VITE_USERS_ADMIN_PASSWORD=your_secure_password
+VITE_USERS_USER2_PASSWORD=another_password
+```
+
+**默认凭证（如果未配置）：**
 ```
 用户名: admin
 密码: admin
@@ -260,16 +285,31 @@ auth_password = "${AGENT_3_PASSWORD}"
 VITE_AGENT_3_PASSWORD=password_here
 ```
 
-### 4. 如何修改默认用户密码？
+### 4. 如何修改用户密码或添加新用户？
 
-编辑 `src/utils/auth.ts`：
+在 `agents.toml` 中配置：
 
-```typescript
-const USERS = [
-  { username: 'admin', password: 'your_new_password' },
-  { username: 'user2', password: 'another_password' }
-]
+```toml
+[[users]]
+username = "admin"
+password = "${VITE_USERS_ADMIN_PASSWORD}"
+
+[[users]]
+username = "newuser"
+password = "${VITE_USERS_NEWUSER_PASSWORD}"
 ```
+
+在 `.env` 中设置密码（**变量名必须完全一致**）：
+
+```bash
+VITE_USERS_ADMIN_PASSWORD=new_secure_password
+VITE_USERS_NEWUSER_PASSWORD=another_password
+```
+
+**优势：**
+- ✅ Docker 部署时无需重新构建镜像
+- ✅ 支持多用户
+- ✅ 密码统一在 .env 管理
 
 **生产环境建议使用后端认证或 OAuth！**
 
@@ -287,7 +327,34 @@ const USERS = [
 - 或返回 `application/x-ndjson`（JSON Lines）
 - webhook 节点配置为流式模式
 
-### 7. Docker 容器无法访问？
+### 7. Docker 部署时登录失败？
+
+如果使用正确密码仍然登录失败：
+
+1. 确保 `agents.toml` 中配置了用户（**变量名要写完整包含 VITE_ 前缀**）：
+```toml
+[[users]]
+username = "admin"
+password = "${VITE_USERS_ADMIN_PASSWORD}"
+```
+
+2. 确保 `.env` 中设置了密码（**变量名必须与 agents.toml 中完全一致**）：
+```bash
+VITE_USERS_ADMIN_PASSWORD=your_password
+```
+
+3. 确保 `.env` 文件被挂载到容器（docker-compose.yml 中已配置）
+
+4. 修改密码后重启容器：
+```bash
+docker-compose restart
+```
+
+**重要提示：** 用户配置从运行时加载，修改 `.env` 或 `agents.toml` 后只需重启容器，无需重新构建镜像。
+
+详见：[DOCKER_AUTH_FIX.md](./DOCKER_AUTH_FIX.md)
+
+### 8. Docker 容器无法访问？
 
 检查：
 - 端口映射是否正确：`-p 5173:80`
@@ -295,7 +362,7 @@ const USERS = [
 - agents.toml 文件是否正确挂载
 - 使用 `docker logs container-id` 查看日志
 
-### 8. 构建失败？
+### 9. 构建失败？
 
 尝试：
 ```bash
