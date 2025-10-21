@@ -35,6 +35,9 @@ export const loadConfig = async (): Promise<Config> => {
 
   try {
     const response = await fetch('/agents.toml')
+    if (!response.ok) {
+      throw new Error(`无法加载配置文件: HTTP ${response.status}`)
+    }
     const tomlText = await response.text()
     const parsed = parse(tomlText)
 
@@ -55,18 +58,11 @@ export const loadConfig = async (): Promise<Config> => {
     cachedConfig = { agents, topic_llm, app_title, log_level }
     return cachedConfig
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
     logger.error('配置加载失败', error)
-    return {
-      agents: [],
-      topic_llm: {
-        enabled: false,
-        base_url: '',
-        api_key: '',
-        model: 'gpt-5-mini'
-      },
-      app_title: 'AI Chat',
-      log_level: 'info'
-    }
+    
+    // 抛出错误，让调用方处理具体的错误信息
+    throw new Error(errorMessage.includes('HTTP') ? errorMessage : `agents.toml 解析失败: ${errorMessage}`)
   }
 }
 

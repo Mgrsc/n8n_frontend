@@ -28,7 +28,7 @@ export default function App() {
         const config = await loadConfig()
         
         if (!config.agents || config.agents.length === 0) {
-          setError('未找到可用的 AI 助手配置，请检查 agents.toml 文件')
+          setError('未找到可用的 AI 助手配置，agents.toml 中没有定义任何 agent')
           setLoading(false)
           return
         }
@@ -45,7 +45,8 @@ export default function App() {
         }
       } catch (err) {
         logger.error('应用初始化失败', err)
-        setError('应用初始化失败，请刷新页面重试')
+        const errorMessage = err instanceof Error ? err.message : '未知错误'
+        setError(`配置加载失败: ${errorMessage}`)
       } finally {
         setLoading(false)
       }
