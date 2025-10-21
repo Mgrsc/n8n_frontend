@@ -1,6 +1,6 @@
 services:
   n8n-frontend:
-    image: ghcr.io/mgrsc/n8n-frontend:latest
+    image: ghcr.io/mgrsc/n8n_frontend:latest
     container_name: n8n-frontend
     ports:
       - "5173:80"
