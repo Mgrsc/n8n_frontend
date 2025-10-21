@@ -8,8 +8,8 @@ services:
       # Mount configuration files (read-only for security)
       - ./agents.toml:/usr/share/nginx/html/agents.toml:ro
       - ./public/favicon.svg:/usr/share/nginx/html/favicon.svg:ro
-    environment:
-      - TZ=Asia/Shanghai
+    env_file:
+      - ./.env
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/health"]

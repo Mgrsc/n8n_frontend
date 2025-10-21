@@ -1,35 +1,21 @@
 # Build stage
-FROM node:20-alpine AS builder
+FROM oven/bun:latest AS builder
 
 WORKDIR /app
 
 # Copy package files for dependency installation
-COPY package.json bun.lock* package-lock.json* yarn.lock* pnpm-lock.yaml* ./
+COPY package.json bun.lock ./
 
 # Install dependencies
-RUN if [ -f bun.lock ]; then \
-      npm install -g bun && bun install --frozen-lockfile; \
-    elif [ -f yarn.lock ]; then \
-      yarn install --frozen-lockfile; \
-    elif [ -f pnpm-lock.yaml ]; then \
-      npm install -g pnpm && pnpm install --frozen-lockfile; \
-    else \
-      npm ci; \
-    fi
+RUN bun install --frozen-lockfile
 
 # Copy source code and build configuration
 COPY src/ ./src/
-COPY index.html ./
-COPY tsconfig.json ./
-COPY vite.config.ts ./
+COPY index.html tsconfig.json vite.config.ts ./
 COPY public/ ./public/
 
 # Build the application with optimizations
-RUN if [ -f bun.lock ]; then \
-      bun run build; \
-    else \
-      npm run build; \
-    fi
+RUN bun run build
 
 # Production stage - minimal runtime image
 FROM nginx:alpine AS production
