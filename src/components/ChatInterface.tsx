@@ -181,7 +181,6 @@ export default function ChatInterface({ chat, onChatUpdate }: ChatInterfaceProps
       const assistantMessageId = (Date.now() + 1).toString()
       let streamedContent = ''
       let hasAddedMessage = false
-      let lastChunkTime = Date.now()
 
       const response = await sendMessage(
         userMessage.content || '查看图片',
@@ -191,7 +190,6 @@ export default function ChatInterface({ chat, onChatUpdate }: ChatInterfaceProps
         (chunk: string) => {
           // 流式更新回调
           streamedContent += chunk
-          lastChunkTime = Date.now()
           
           // 收到数据后重置长时间等待状态
           if (isLongWait) {
