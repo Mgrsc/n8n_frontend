@@ -6,6 +6,7 @@ export default defineConfig({
   server: {
     port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
     host: process.env.HOST || '0.0.0.0',
-    strictPort: true
+    strictPort: true,
+    allowedHosts: true
   }
 })
