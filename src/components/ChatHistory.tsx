@@ -9,6 +9,7 @@ interface ChatHistoryProps {
   onNewChat: () => void
   onDeleteChat: (chatId: string) => void
   onClearAll: () => void
+  mobileOpen?: boolean
 }
 
 export default function ChatHistory({
@@ -17,7 +18,8 @@ export default function ChatHistory({
   onSelectChat,
   onNewChat,
   onDeleteChat,
-  onClearAll
+  onClearAll,
+  mobileOpen = false
 }: ChatHistoryProps) {
   const [agents, setAgents] = useState<Agent[]>([])
 
@@ -42,7 +44,7 @@ export default function ChatHistory({
   }
 
   return (
-    <div className="chat-history">
+    <div className={`chat-history ${mobileOpen ? 'mobile-open' : ''}`}>
       <div className="history-header">
         <h2>对话列表</h2>
         <button className="new-chat-btn" onClick={onNewChat} title="新建对话">

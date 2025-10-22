@@ -105,7 +105,7 @@ export default function ChatInterface({ chat, onChatUpdate }: ChatInterfaceProps
       ]
       
       let index = 0
-      loadingIntervalRef.current = setInterval(() => {
+      loadingIntervalRef.current = window.setInterval(() => {
         index = (index + 1) % (isLongWait ? longWaitTexts.length : normalTexts.length)
         setLoadingText(isLongWait ? longWaitTexts[index] : normalTexts[index])
       }, 1500)

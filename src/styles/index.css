@@ -1053,39 +1053,626 @@ body {
 /* ============================================
    响应式设计
    ============================================ */
-@media (max-width: 768px) {
+
+/* 移动端汉堡菜单按钮 */
+.mobile-menu-btn {
+  display: none;
+  width: 44px;
+  height: 44px;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-small);
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+.mobile-menu-btn:hover {
+  background: var(--primary-hover);
+  transform: scale(1.05);
+}
+
+.mobile-menu-btn:active {
+  transform: scale(0.95);
+}
+
+/* 移动端悬浮新建按钮 (FAB) */
+.mobile-fab {
+  display: none;
+  position: fixed;
+  right: 20px;
+  bottom: 24px;
+  width: 56px;
+  height: 56px;
+  background: var(--primary);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 1.75rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(217, 119, 87, 0.4), 
+              0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 50;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  animation: fabIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-fab:hover {
+  background: var(--primary-hover);
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(217, 119, 87, 0.5), 
+              0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-fab:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 8px rgba(217, 119, 87, 0.3), 
+              0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes fabIn {
+  from {
+    opacity: 0;
+    transform: scale(0) rotate(-90deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+/* 移动端遮罩层 */
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  animation: fadeIn 0.3s ease;
+}
+
+.mobile-overlay.active {
+  display: block;
+}
+
+/* 平板设备适配 (768px - 1024px) */
+@media (max-width: 1024px) {
+  .app {
+    margin: 8px;
+    height: calc(100vh - 16px);
+    border-radius: 16px;
+  }
+  
+  .app-header h1 {
+    font-size: 1.25rem;
+  }
+  
   .chat-history {
-    width: 250px;
+    width: 220px;
+  }
+  
+  .message {
+    max-width: 80%;
+  }
+}
+
+/* 手机横屏 & 小平板 (481px - 768px) */
+@media (max-width: 768px) {
+  .app {
+    margin: 0;
+    height: 100vh;
+    border-radius: 0;
+  }
+  
+  .app-header {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .app-header h1 {
+    font-size: 1.125rem;
+    flex-shrink: 0;
+  }
+  
+  .agent-selector {
+    order: 3;
+    flex: 1 1 100%;
+    gap: 8px;
+  }
+  
+  .agent-selector label {
+    font-size: 0.8125rem;
+  }
+  
+  .agent-selector select {
+    flex: 1;
+    min-width: unset;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+  
+  .user-info {
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  
+  .user-info span {
+    font-size: 0.8125rem;
+  }
+  
+  .user-info button {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+  
+  .chat-history {
+    width: 280px;
+    position: fixed;
+    left: -280px;
+    top: 0;
+    height: 100%;
+    z-index: 100;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 0;
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  .chat-history.mobile-open {
+    left: 0;
+  }
+  
+  .mobile-menu-btn {
+    display: flex;
+  }
+  
+  .mobile-fab {
+    display: flex;
+  }
+  
+  .chat-interface {
+    border-radius: 0;
+  }
+  
+  .chat-toolbar {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .toolbar-btn {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+  
+  .message {
+    max-width: 85%;
+  }
+  
+  .message-content {
+    font-size: 0.9rem;
+    padding: 12px 16px;
+  }
+  
+  .chat-messages,
+  .chat-messages-virtual {
+    padding: 16px 12px;
+  }
+  
+  .chat-input-form {
+    padding: 12px;
+  }
+  
+  .input-row {
+    gap: 8px;
+  }
+  
+  .input-row textarea {
+    font-size: 0.9375rem;
+    padding: 0.625rem 0.875rem;
+  }
+  
+  .input-row button[type="submit"] {
+    padding: 0.75rem 1.25rem;
+  }
+  
+  .attach-btn {
+    padding: 0.625rem;
+  }
+}
+
+/* 手机竖屏 (320px - 480px) */
+@media (max-width: 480px) {
+  .app-header {
+    padding: 10px 12px;
+  }
+  
+  .app-header h1 {
+    font-size: 1rem;
+  }
+  
+  .user-info span {
+    display: none;
+  }
+  
+  .user-info button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .agent-selector label {
+    display: none;
+  }
+  
+  .agent-selector select {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .chat-history {
+    width: 260px;
+    left: -260px;
+  }
+  
+  .history-header h2 {
+    font-size: 1rem;
+  }
+  
+  .new-chat-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 1.375rem;
+  }
+  
+  .history-item {
+    padding: 8px 10px;
+  }
+  
+  .history-item-name {
+    font-size: 0.8125rem;
+  }
+  
+  .history-item-agent {
+    font-size: 0.6875rem;
+  }
+  
+  .clear-all-btn {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+  
+  .chat-toolbar {
+    padding: 10px 12px;
+    gap: 6px;
+  }
+  
+  .toolbar-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  
+  .selected-count {
+    font-size: 0.75rem;
   }
   
   .message {
     max-width: 90%;
   }
   
-  .app-header {
-    flex-wrap: wrap;
+  .message-content {
+    font-size: 0.875rem;
+    padding: 10px 14px;
+    border-radius: 12px;
   }
   
-  .agent-selector {
-    flex: 1 1 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .chat-history {
-    position: absolute;
-    left: -300px;
-    height: 100%;
-    transition: left 0.3s ease;
-    z-index: 100;
+  .message-content h1 {
+    font-size: 1.125rem;
   }
   
-  .message {
-    max-width: 95%;
+  .message-content h2 {
+    font-size: 1rem;
+  }
+  
+  .message-content h3 {
+    font-size: 0.9375rem;
+  }
+  
+  .message-content code {
+    font-size: 0.8125em;
+  }
+  
+  .message-content table {
+    font-size: 0.8125em;
+  }
+  
+  .message-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .chat-messages,
+  .chat-messages-virtual {
+    padding: 12px 8px;
+    gap: 12px;
+  }
+  
+  .chat-input-form {
+    padding: 10px;
+  }
+  
+  .image-preview-container {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  
+  .image-preview {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .input-row {
+    gap: 6px;
+  }
+  
+  .input-row textarea {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .input-row button[type="submit"] {
+    padding: 0.625rem 1rem;
+    font-size: 0.8125rem;
+  }
+  
+  .attach-btn {
+    padding: 0.5rem;
+    font-size: 1.125rem;
+  }
+  
+  .mobile-fab {
+    width: 52px;
+    height: 52px;
+    right: 16px;
+    bottom: 20px;
+    font-size: 1.625rem;
+  }
+  
+  /* 登录页面优化 */
+  .login-container {
+    padding: 16px;
   }
   
   .login-box {
-    padding: 2rem;
+    padding: 2rem 1.5rem;
+  }
+  
+  .login-box h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .login-box input {
+    font-size: 0.9375rem;
+    padding: 0.625rem 0.875rem;
+  }
+  
+  .login-box button {
+    font-size: 0.9375rem;
+    padding: 0.625rem 0.875rem;
+  }
+  
+  /* PDF质量对话框优化 */
+  .modal-content {
+    padding: 1.5rem;
+    width: 95%;
+  }
+  
+  .pdf-quality-dialog h3 {
+    font-size: 1.25rem;
+  }
+  
+  .modal-desc {
+    font-size: 0.875rem;
+  }
+  
+  .quality-option {
+    padding: 12px;
+  }
+  
+  .quality-title {
+    font-size: 1rem;
+  }
+  
+  .quality-desc {
+    font-size: 0.8125rem;
+  }
+  
+  .quality-size {
+    font-size: 0.75rem;
+  }
+  
+  /* 空状态优化 */
+  .empty-state h2 {
+    font-size: 1.25rem;
+  }
+  
+  .empty-state p {
+    font-size: 0.875rem;
+  }
+  
+  /* 加载和错误页面优化 */
+  .loading-screen,
+  .error-screen {
+    padding: 20px;
+  }
+  
+  .error-screen h2 {
+    font-size: 1.25rem;
+  }
+  
+  .error-screen p,
+  .loading-screen p {
+    font-size: 0.875rem;
+  }
+  
+  .long-wait-notice {
+    font-size: 0.8125rem;
+    padding: 12px 14px;
+  }
+  
+  .notice-warning {
+    font-size: 0.8125rem;
+  }
+  
+  .notice-tip {
+    font-size: 0.75rem;
+  }
+}
+
+/* 超小屏幕 (< 360px) */
+@media (max-width: 360px) {
+  .app-header h1 {
+    font-size: 0.9375rem;
+  }
+  
+  .mobile-menu-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.375rem;
+  }
+  
+  .user-info button {
+    padding: 0.5rem;
+    font-size: 0.6875rem;
+  }
+  
+  .chat-history {
+    width: 240px;
+    left: -240px;
+  }
+  
+  .message {
+    max-width: 92%;
+  }
+  
+  .message-content {
+    font-size: 0.8125rem;
+    padding: 8px 12px;
+  }
+  
+  .toolbar-btn {
+    padding: 0.5rem;
+    font-size: 0.6875rem;
+  }
+  
+  .input-row button[type="submit"] {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .mobile-fab {
+    width: 48px;
+    height: 48px;
+    right: 12px;
+    bottom: 16px;
+    font-size: 1.5rem;
+  }
+}
+
+/* 横屏模式优化 */
+@media (max-height: 600px) and (orientation: landscape) {
+  .app-header {
+    padding: 8px 12px;
+  }
+  
+  .app-header h1 {
+    font-size: 0.9375rem;
+  }
+  
+  .chat-toolbar {
+    padding: 8px 12px;
+  }
+  
+  .chat-messages,
+  .chat-messages-virtual {
+    padding: 12px;
+  }
+  
+  .chat-input-form {
+    padding: 8px 12px;
+  }
+  
+  .input-row textarea {
+    max-height: 80px;
+  }
+  
+  .login-box {
+    padding: 1.5rem;
+  }
+  
+  .login-box h1 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  
+  .mobile-fab {
+    width: 48px;
+    height: 48px;
+    right: 12px;
+    bottom: 12px;
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  /* 增大可触摸元素的最小尺寸 */
+  button,
+  .history-item,
+  .toolbar-btn {
+    min-height: 44px;
+  }
+  
+  /* 移除悬停效果，使用激活状态 */
+  .history-item:hover {
+    background: var(--bg-tertiary);
+    transform: none;
+  }
+  
+  .history-item:active {
+    background: var(--bg-accent);
+    transform: translateX(2px);
+  }
+  
+  .toolbar-btn:hover {
+    border-color: var(--border);
+    color: var(--text);
+    background: white;
+    transform: none;
+  }
+  
+  .toolbar-btn:active {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(217, 119, 87, 0.08);
+  }
+  
+  /* 优化按钮触摸反馈 */
+  button:active {
+    opacity: 0.7;
   }
 }
 

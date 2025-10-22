@@ -19,6 +19,7 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [appTitle, setAppTitle] = useState('AI Chat')
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     const init = async () => {
@@ -111,6 +112,19 @@ export default function App() {
     loadChats()
   }
 
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen)
+  }
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false)
+  }
+
+  const handleSelectChatMobile = (chatId: string) => {
+    setCurrentChatId(chatId)
+    closeMobileMenu()
+  }
+
   if (loading) {
     return (
       <div className="loading-screen">
@@ -140,7 +154,22 @@ export default function App() {
 
   return (
     <div className="app">
+      {/* 移动端遮罩层 */}
+      <div 
+        className={`mobile-overlay ${mobileMenuOpen ? 'active' : ''}`}
+        onClick={closeMobileMenu}
+      />
+      
       <div className="app-header">
+        {/* 移动端菜单按钮 */}
+        <button 
+          className="mobile-menu-btn"
+          onClick={toggleMobileMenu}
+          aria-label="Toggle menu"
+        >
+          ☰
+        </button>
+        
         <h1>{appTitle}</h1>
         <AgentSelector 
           agents={agents}
@@ -156,15 +185,26 @@ export default function App() {
         <ChatHistory
           chats={allChats}
           currentChatId={currentChatId}
-          onSelectChat={setCurrentChatId}
+          onSelectChat={handleSelectChatMobile}
           onNewChat={handleNewChat}
           onDeleteChat={handleDeleteChat}
           onClearAll={handleClearAll}
+          mobileOpen={mobileMenuOpen}
         />
         <ChatInterface
           chat={currentChat}
           onChatUpdate={handleChatUpdate}
         />
+        
+        {/* 移动端悬浮新建按钮 */}
+        <button 
+          className="mobile-fab"
+          onClick={handleNewChat}
+          aria-label="新建对话"
+          title="新建对话"
+        >
+          ✏️
+        </button>
       </div>
     </div>
   )
