@@ -1087,7 +1087,7 @@ body {
   display: none;
   position: fixed;
   right: 20px;
-  bottom: 24px;
+  bottom: 100px;
   width: 56px;
   height: 56px;
   background: var(--primary);
@@ -1447,7 +1447,7 @@ body {
     width: 52px;
     height: 52px;
     right: 16px;
-    bottom: 20px;
+    bottom: 90px;
     font-size: 1.625rem;
   }
   
@@ -1588,7 +1588,7 @@ body {
     width: 48px;
     height: 48px;
     right: 12px;
-    bottom: 16px;
+    bottom: 85px;
     font-size: 1.5rem;
   }
 }
@@ -1633,7 +1633,7 @@ body {
     width: 48px;
     height: 48px;
     right: 12px;
-    bottom: 12px;
+    bottom: 80px;
   }
 }
 

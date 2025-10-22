@@ -196,15 +196,17 @@ export default function App() {
           onChatUpdate={handleChatUpdate}
         />
         
-        {/* 移动端悬浮新建按钮 */}
-        <button 
-          className="mobile-fab"
-          onClick={handleNewChat}
-          aria-label="新建对话"
-          title="新建对话"
-        >
-          ✏️
-        </button>
+        {/* 移动端悬浮新建按钮 - 仅在无对话时显示 */}
+        {!currentChatId && (
+          <button 
+            className="mobile-fab"
+            onClick={handleNewChat}
+            aria-label="新建对话"
+            title="新建对话"
+          >
+            ✏️
+          </button>
+        )}
       </div>
     </div>
   )
