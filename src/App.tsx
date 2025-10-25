@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { validateUser, saveAuth, getAuth, clearAuth } from './utils/auth'
 import { getChats, createChat, deleteChat } from './utils/storage'
 import { loadConfig } from './utils/config'
@@ -20,6 +20,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
   const [appTitle, setAppTitle] = useState('AI Chat')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const hasCreatedChatRef = useRef(false)  // 防止重复创建对话
 
   useEffect(() => {
     if (currentChatId) {
@@ -82,16 +83,17 @@ export default function App() {
           setAuthenticated(true)
           loadChats()
 
-          // 如果是通过URL参数切换agent，自动创建新会话
-          if (isUrlAgentSwitch) {
+          // 如果是通过URL参数切换agent，自动创建新会话（防止重复创建）
+          if (isUrlAgentSwitch && !hasCreatedChatRef.current) {
+            hasCreatedChatRef.current = true
             setTimeout(() => {
               const newChat = createChat(initialAgentId)
               setChats(getChats())
               setCurrentChatId(newChat.id)
               logger.info(`通过URL参数切换agent，自动创建新会话: ${newChat.id}`)
             }, 100)
-          } else {
-            // 否则恢复上次活跃的聊天
+          } else if (!isUrlAgentSwitch) {
+            // 只有不是通过URL参数切换时，才恢复上次活跃的聊天
             const lastActiveChatId = localStorage.getItem('lastActiveChatId')
             if (lastActiveChatId) {
               setTimeout(() => {
