@@ -697,12 +697,13 @@ export default function ChatInterface({ chat, onChatUpdate }: ChatInterfaceProps
             onChange={e => setInput(e.target.value)}
             onPaste={handlePaste}
             placeholder="输入消息或粘贴图片..."
-            disabled={loading}
             rows={1}
             onKeyDown={e => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault()
-                handleSubmit(e)
+                if (!loading) {
+                  handleSubmit(e)
+                }
               }
             }}
           />

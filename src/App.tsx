@@ -51,11 +51,13 @@ export default function App() {
         const urlParams = new URLSearchParams(window.location.search)
         const agentParam = urlParams.get('agent')
         let initialAgentId = config.agents[0].id
+        let isUrlAgentSwitch = false  // 标记是否通过URL参数切换agent
 
         if (agentParam) {
           const targetAgent = config.agents.find(a => a.name === agentParam)
           if (targetAgent) {
             initialAgentId = targetAgent.id
+            isUrlAgentSwitch = true  // 通过URL参数成功切换了agent
             logger.info(`通过URL参数切换到agent: ${agentParam}`)
           } else {
             logger.warn(`URL参数中的agent "${agentParam}" 未找到，使用默认agent`)
@@ -80,17 +82,27 @@ export default function App() {
           setAuthenticated(true)
           loadChats()
 
-
-          const lastActiveChatId = localStorage.getItem('lastActiveChatId')
-          if (lastActiveChatId) {
+          // 如果是通过URL参数切换agent，自动创建新会话
+          if (isUrlAgentSwitch) {
             setTimeout(() => {
-              const savedChats = getChats()
-              const chatExists = savedChats.some(c => c.id === lastActiveChatId)
-              if (chatExists) {
-                setCurrentChatId(lastActiveChatId)
-                logger.info(`恢复上次活跃的聊天: ${lastActiveChatId}`)
-              }
+              const newChat = createChat(initialAgentId)
+              setChats(getChats())
+              setCurrentChatId(newChat.id)
+              logger.info(`通过URL参数切换agent，自动创建新会话: ${newChat.id}`)
             }, 100)
+          } else {
+            // 否则恢复上次活跃的聊天
+            const lastActiveChatId = localStorage.getItem('lastActiveChatId')
+            if (lastActiveChatId) {
+              setTimeout(() => {
+                const savedChats = getChats()
+                const chatExists = savedChats.some(c => c.id === lastActiveChatId)
+                if (chatExists) {
+                  setCurrentChatId(lastActiveChatId)
+                  logger.info(`恢复上次活跃的聊天: ${lastActiveChatId}`)
+                }
+              }, 100)
+            }
           }
         }
       } catch (err) {
