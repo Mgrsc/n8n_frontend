@@ -22,20 +22,56 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
+    if (currentChatId) {
+      localStorage.setItem('lastActiveChatId', currentChatId)
+    }
+  }, [currentChatId])
+
+  useEffect(() => {
+    if (currentAgentId) {
+      localStorage.setItem('lastActiveAgentId', currentAgentId)
+    }
+  }, [currentAgentId])
+
+  useEffect(() => {
     const init = async () => {
       try {
         setLoading(true)
         setError(null)
         const config = await loadConfig()
-        
+
         if (!config.agents || config.agents.length === 0) {
           setError('未找到可用的 AI 助手配置，agents.toml 中没有定义任何 agent')
           setLoading(false)
           return
         }
-        
+
         setAgents(config.agents)
-        setCurrentAgentId(config.agents[0].id)
+
+        const urlParams = new URLSearchParams(window.location.search)
+        const agentParam = urlParams.get('agent')
+        let initialAgentId = config.agents[0].id
+
+        if (agentParam) {
+          const targetAgent = config.agents.find(a => a.name === agentParam)
+          if (targetAgent) {
+            initialAgentId = targetAgent.id
+            logger.info(`通过URL参数切换到agent: ${agentParam}`)
+          } else {
+            logger.warn(`URL参数中的agent "${agentParam}" 未找到，使用默认agent`)
+          }
+        } else {
+          const lastActiveAgentId = localStorage.getItem('lastActiveAgentId')
+          if (lastActiveAgentId) {
+            const savedAgent = config.agents.find(a => a.id === lastActiveAgentId)
+            if (savedAgent) {
+              initialAgentId = lastActiveAgentId
+              logger.info(`恢复上次使用的agent: ${savedAgent.name}`)
+            }
+          }
+        }
+
+        setCurrentAgentId(initialAgentId)
         setAppTitle(config.app_title || 'AI Chat')
 
         const auth = getAuth()
@@ -43,6 +79,19 @@ export default function App() {
           setUsername(auth.username)
           setAuthenticated(true)
           loadChats()
+
+
+          const lastActiveChatId = localStorage.getItem('lastActiveChatId')
+          if (lastActiveChatId) {
+            setTimeout(() => {
+              const savedChats = getChats()
+              const chatExists = savedChats.some(c => c.id === lastActiveChatId)
+              if (chatExists) {
+                setCurrentChatId(lastActiveChatId)
+                logger.info(`恢复上次活跃的聊天: ${lastActiveChatId}`)
+              }
+            }, 100)
+          }
         }
       } catch (err) {
         logger.error('应用初始化失败', err)
@@ -76,6 +125,8 @@ export default function App() {
     setUsername('')
     setChats([])
     setCurrentChatId(null)
+    localStorage.removeItem('lastActiveChatId')
+    localStorage.removeItem('lastActiveAgentId')
   }
 
   const handleNewChat = () => {
@@ -91,6 +142,14 @@ export default function App() {
   const handleSelectAgent = (agentId: string) => {
     setCurrentAgentId(agentId)
     setCurrentChatId(null)
+
+    const agent = agents.find(a => a.id === agentId)
+    if (agent) {
+      const url = new URL(window.location.href)
+      url.searchParams.set('agent', agent.name)
+      window.history.pushState({}, '', url.toString())
+      logger.debug(`URL已更新: agent=${agent.name}`)
+    }
   }
 
   const handleDeleteChat = (chatId: string) => {
@@ -98,14 +157,15 @@ export default function App() {
     loadChats()
     if (currentChatId === chatId) {
       setCurrentChatId(null)
+      localStorage.removeItem('lastActiveChatId')
     }
   }
 
   const handleClearAll = () => {
-    // 删除所有对话
     chats.forEach(chat => deleteChat(chat.id))
     loadChats()
     setCurrentChatId(null)
+    localStorage.removeItem('lastActiveChatId')
   }
 
   const handleChatUpdate = () => {

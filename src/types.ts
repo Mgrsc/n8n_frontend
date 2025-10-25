@@ -36,7 +36,7 @@ export interface TopicLLM {
   model: string
 }
 
-export type LogLevel = 'debug' | 'info' | 'error'
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
 export interface Config {
   agents: Agent[]

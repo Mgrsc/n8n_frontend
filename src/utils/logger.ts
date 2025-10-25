@@ -3,7 +3,8 @@ import { LogLevel } from '../types'
 const LOG_LEVELS: Record<LogLevel, number> = {
   debug: 0,
   info: 1,
-  error: 2
+  warn: 2,
+  error: 3
 }
 
 let currentLogLevel: LogLevel = 'info'
@@ -26,9 +27,10 @@ const formatMessage = (level: LogLevel, message: string, ...args: any[]): [strin
   const levelSymbol = {
     debug: '🔍',
     info: 'ℹ️',
+    warn: '⚠️',
     error: '❌'
   }[level]
-  
+
   return [`[${timestamp}] ${levelSymbol} ${message}`, ...args]
 }
 
@@ -38,13 +40,19 @@ export const logger = {
       console.log(...formatMessage('debug', message, ...args))
     }
   },
-  
+
   info: (message: string, ...args: any[]) => {
     if (shouldLog('info')) {
       console.log(...formatMessage('info', message, ...args))
     }
   },
-  
+
+  warn: (message: string, ...args: any[]) => {
+    if (shouldLog('warn')) {
+      console.warn(...formatMessage('warn', message, ...args))
+    }
+  },
+
   error: (message: string, ...args: any[]) => {
     if (shouldLog('error')) {
       console.error(...formatMessage('error', message, ...args))
